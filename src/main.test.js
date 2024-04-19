@@ -71,8 +71,36 @@ test('gameboard can place ships', () => {
 
     testBoard.placeShip([2, 2], [0, 2]);
     expect(testBoard.cellShipCheck([1, 2])).toHaveProperty('length', 3);
+
+    expect(testBoard.cellShipCheck([1, 1])).toBeNull();
+
+    testBoard.placeShip([1, 1], [1, 1]);
+    expect(testBoard.cellShipCheck([1, 1])).toHaveProperty('length', 1);
 });
 
-// test('gameboard can check if a tile has been hit', () => {
-//     expect(new Gameboard(3).cellHitCheck([0, 1])).toBe(false);
-// });
+test('gameboard can recieve attacks', () => {
+    const testBoard = new Gameboard(3);
+    expect(testBoard.cellHitCheck([1, 1])).toBe(false);
+    testBoard.recieveAttack([1, 1]);
+    expect(testBoard.cellHitCheck([1, 1])).toBe(true);
+});
+
+test('gameboard attacks will actually hit a ship', () => {
+    const testBoard = new Gameboard(3);
+    testBoard.placeShip([0, 0], [0, 1]);
+    expect(testBoard.cellShipCheck([0, 0])).toHaveProperty('hits', 0);
+    testBoard.recieveAttack([0, 0]);
+    expect(testBoard.cellShipCheck([0, 0])).toHaveProperty('hits', 1);
+});
+
+test('gameboard can tell when all its ships are sunk', () => {
+    const testBoard = new Gameboard(3);
+    testBoard.placeShip([0, 0], [0, 0]);
+    expect(testBoard.allShipsSunk()).toBe(false);
+
+    testBoard.placeShip([2, 2], [2, 2]);
+    testBoard.recieveAttack([0, 0]);
+    expect(testBoard.allShipsSunk()).toBe(false);
+    testBoard.recieveAttack([2, 2]);
+    expect(testBoard.allShipsSunk()).toBe(true);
+});

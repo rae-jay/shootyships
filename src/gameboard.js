@@ -2,6 +2,7 @@ const { Ship } = require('./ship.js');
 
 class Gameboard {
     constructor(size) {
+        this.ships = [];
         this.grid = [];
 
         for (let x = 0; x < size; x++) {
@@ -12,6 +13,7 @@ class Gameboard {
         }
     }
 
+    // information fetchers
     #getCellOb(coords) {
         const [x, y] = coords;
         return this.grid[x][y];
@@ -37,11 +39,19 @@ class Gameboard {
                 break;
             }
         }
-        // i don't know that this is necessary but it makes me feel better
+
         if (!dif) {
-            throw new Error(
-                `getCells coordinates had an issue: ${startCoord} / ${endCoord}`
-            );
+            // i think this check is redundant and i can just assume that !dif means
+            // start and end are the same
+            // but this makes me feel better
+            if (startCoord[0] == endCoord[0] && startCoord[1] == endCoord[1]) {
+                result.push(startCoord);
+                return result;
+            } else {
+                throw new Error(
+                    `getCells coordinates had an issue: ${startCoord} / ${endCoord}`
+                );
+            }
         }
 
         for (let i = 0; i <= dif; i++) {
@@ -54,15 +64,6 @@ class Gameboard {
         return result;
     }
 
-    placeShip(startCoord, endCoord) {
-        const cellCoords = this.getCells(startCoord, endCoord);
-        const newShip = new Ship(cellCoords.length);
-
-        cellCoords.forEach((coord) => {
-            this.#getCellOb(coord).ship = newShip;
-        });
-    }
-
     cellHitCheck(coords) {
         return this.#getCellOb(coords).beenHit;
     }
@@ -70,7 +71,57 @@ class Gameboard {
     cellShipCheck(coords) {
         return this.#getCellOb(coords).ship;
     }
+
+    allShipsSunk() {
+        // this assumes like. there are actually ships.
+        let allSunk = true;
+        this.ships.forEach((ship) => {
+            if (!ship.isSunk()) {
+                allSunk = false;
+            }
+        });
+        return allSunk;
+    }
+
+    // do-stuffers
+    placeShip(startCoord, endCoord) {
+        const cellCoords = this.getCells(startCoord, endCoord);
+        const newShip = new Ship(cellCoords.length);
+        this.ships.push(newShip);
+
+        cellCoords.forEach((coord) => {
+            this.#getCellOb(coord).ship = newShip;
+        });
+    }
+
+    recieveAttack(coords) {
+        this.#getCellOb(coords).beenHit = true;
+
+        const ship = this.cellShipCheck(coords);
+        if (ship) {
+            ship.hit();
+        }
+    }
 }
+
+/*
+    we currently don't check VALIDITY of placement when putting down a ship
+    MAYBE placeShip should start with a check, 'are these coordinates valid or blocked'
+    and return a false/true for success
+
+    (my hesitation with putting that in now is that placing a ship may involve mouse hovering
+    EVENTUALLY, and this COULD lead us to a place where we're checking validity twice over,
+    every time the 'selected coordinates' changes (mouse movement)
+    and every time ship placement is COMMITED (on click))
+
+    which would imply a SEPERATE function, not directly tied in, that checks validity
+    and in user-version, placeShip is only GETTING called when a placement is already known
+    as clean
+
+    .
+    (recieve attack is similar, it assumes a valid target, and probably should stay that
+    way, but will likely need support logic preceeding it)
+*/
 
 /*
 
