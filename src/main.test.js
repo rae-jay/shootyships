@@ -1,5 +1,6 @@
-const { workTest, Ship } = require('./ship.js');
+const { Ship } = require('./ship.js');
 const { Gameboard } = require('./gameboard.js');
+const { Player } = require('./player.js');
 //
 
 //Ships
@@ -103,4 +104,13 @@ test('gameboard can tell when all its ships are sunk', () => {
     expect(testBoard.allShipsSunk()).toBe(false);
     testBoard.recieveAttack([2, 2]);
     expect(testBoard.allShipsSunk()).toBe(true);
+});
+/*
+
+*/
+//player
+test('create basic player with name and board', () => {
+    const testPerson = new Player('human');
+    expect(testPerson).toHaveProperty('name', 'human');
+    expect(testPerson).toHaveProperty('gameboard');
 });

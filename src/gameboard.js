@@ -102,6 +102,23 @@ class Gameboard {
             ship.hit();
         }
     }
+
+    // this is getting messy as shit
+    attemptPlaceShip(startCoord, endCoord) {
+        let fail = false;
+        this.getCells(startCoord, endCoord).forEach((coord) => {
+            if (this.cellShipCheck(coord)) {
+                fail = true;
+            }
+        });
+
+        if (!fail) {
+            this.placeShip(startCoord, endCoord);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 /*

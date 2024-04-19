@@ -1,10 +1,4 @@
 //
-function workTest() {
-    console.log('am working');
-}
-workTest();
-
-//
 class Ship {
     constructor(length) {
         this.length = length;
