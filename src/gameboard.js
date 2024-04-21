@@ -14,11 +14,13 @@ class Gameboard {
     }
 
     // information fetchers
+    // uses one coord to find one cell object
     #getCellOb(coords) {
         const [x, y] = coords;
         return this.grid[x][y];
     }
 
+    // uses two coords to find all coords in between
     getCells(startCoord, endCoord) {
         const result = [];
 
@@ -40,6 +42,7 @@ class Gameboard {
             }
         }
 
+        // in case start and end are the same
         if (!dif) {
             // i think this check is redundant and i can just assume that !dif means
             // start and end are the same
@@ -54,6 +57,7 @@ class Gameboard {
             }
         }
 
+        // for 'difference', find cells in order in correct direction
         for (let i = 0; i <= dif; i++) {
             result.push([
                 startCoord[0] + steps[0] * i,
@@ -64,16 +68,31 @@ class Gameboard {
         return result;
     }
 
+    // use one coord to find cell-object information
     cellHitCheck(coords) {
         return this.#getCellOb(coords).beenHit;
     }
 
+    // use one coord to find cell-object information
     cellShipCheck(coords) {
         return this.#getCellOb(coords).ship;
     }
 
+    // uses two coords to find MULTIPLE cell-objects' information
+    multiCellShipCheck(startCoord, endCoord) {
+        let fail = false;
+        this.getCells(startCoord, endCoord).forEach((coord) => {
+            if (this.cellShipCheck(coord)) {
+                fail = true;
+            }
+        });
+
+        return !fail;
+    }
+
+    // just return bool
     allShipsSunk() {
-        // this assumes like. there are actually ships.
+        // this defaulting to true assumes like. there are actually ships.
         let allSunk = true;
         this.ships.forEach((ship) => {
             if (!ship.isSunk()) {
@@ -84,6 +103,7 @@ class Gameboard {
     }
 
     // do-stuffers
+    // assigns a ship to ASSUMED VALID coordinates
     placeShip(startCoord, endCoord) {
         const cellCoords = this.getCells(startCoord, endCoord);
         const newShip = new Ship(cellCoords.length);
@@ -94,29 +114,13 @@ class Gameboard {
         });
     }
 
-    recieveAttack(coords) {
-        this.#getCellOb(coords).beenHit = true;
+    // registers a hit on an ASSUMED VALID target
+    recieveAttack(coord) {
+        this.#getCellOb(coord).beenHit = true;
 
-        const ship = this.cellShipCheck(coords);
+        const ship = this.cellShipCheck(coord);
         if (ship) {
             ship.hit();
-        }
-    }
-
-    // this is getting messy as shit
-    attemptPlaceShip(startCoord, endCoord) {
-        let fail = false;
-        this.getCells(startCoord, endCoord).forEach((coord) => {
-            if (this.cellShipCheck(coord)) {
-                fail = true;
-            }
-        });
-
-        if (!fail) {
-            this.placeShip(startCoord, endCoord);
-            return true;
-        } else {
-            return false;
         }
     }
 }

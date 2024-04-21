@@ -1,6 +1,7 @@
 const { Ship } = require('./ship.js');
 const { Gameboard } = require('./gameboard.js');
 const { Player } = require('./player.js');
+const { BotBrain } = require('./bot-logic.js');
 //
 
 //Ships

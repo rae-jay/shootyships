@@ -5,12 +5,9 @@ class Player {
         this.gameboard = gameboard;
     }
 
-    attemptPlaceShip(length, startCoord, endCoord) {
-        if (length) {
-            return this.gameboard.attemptPlaceShip(startCoord, endCoord);
-        }
-        return false;
-    }
+    // attemptPlaceShip(startCoord, endCoord) {
+    //     return this.gameboard.attemptPlaceShip(startCoord, endCoord);
+    // }
 }
 
 module.exports = { Player };
